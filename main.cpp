@@ -1,18 +1,28 @@
-RGBMatrix::Options matrix_options;
-rgb_matrix::RuntimeOptions runtime_opt;
+#include "Clock.h"
+#include "led-matrix.h"
 
-// These are the defaults when no command-line flags are given.
-matrix_options.rows = 32;
-matrix_options.chain_length = 1;
-matrix_options.parallel = 1;
+using rgb_matrix::GPIO;
+using rgb_matrix::RGBMatrix;
+using rgb_matrix::Canvas;
 
-RGBMatrix *matrix = CreateMatrixFromOptions(matrix_options, runtime_opt);
+int main(int argc, char **argv) {
 
-LedClock *ledclock = new LedClock(&matrix);
-ledclock->Start();   // Start doing things.
-// This now runs in the background, you can do other things here,
-// e.g. aquiring new data or simply wait. But for waiting, you wouldn't
-// need a thread in the first place.
-ledclock->Stop();
+    // Set some defaults
+    RGBMatrix::Options my_defaults;
+    my_defaults.hardware_mapping = "adafruit-hat";
+    my_defaults.chain_length = 1;
 
-delete demo;
+    rgb_matrix::RuntimeOptions runtime_defaults;
+    runtime_defaults.drop_privileges = 1;
+
+    RGBMatrix *matrix = rgb_matrix::CreateMatrixFromOptions(my_defaults, runtime_defaults);
+
+    if (matrix == NULL) {
+        PrintMatrixFlags(stderr, my_defaults, runtime_defaults);
+        return 1;
+    }
+
+
+    //myledclock.Run();
+
+}
