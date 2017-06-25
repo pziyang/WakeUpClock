@@ -46,6 +46,7 @@ private:
 
   rgb_matrix::Font font_;
   rgb_matrix::Color* pcolor_;
+  int continuum_ = 0;
 
   std::mutex mlock_;
 

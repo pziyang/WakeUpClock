@@ -9,67 +9,89 @@ using rgb_matrix::GPIO;
 using rgb_matrix::RGBMatrix;
 using rgb_matrix::Canvas;
 
-bool LedClock::GetTimeAndDate()
-{
-    time_t t = time(0);   // get time and date now
-    timeinfo_ = localtime(&t);
-
-    return true;
-}
-
 bool LedClock::SetFontColor()
 {
-
-    if (timeinfo_.tm_hour > 22 || timeinfo_.tm_hour < 8)
+    continuum_ += 1;
+    continuum_ %= 3 * 255;
+    int r = 0, g = 0, b = 0;
+    if (continuum_ <= 255)
     {
-        pcolor_->r = 255;
-        pcolor_->g = 255;
-        pcolor_->b = 0;
+      int c = continuum_;
+      b = 255 - c;
+      r = c;
+    }
+    else if (continuum_ > 255 && continuum_ <= 511)
+    {
+      int c = continuum_ - 256;
+      r = 255 - c;
+      g = c;
     }
     else
     {
-        pcolor_ = new rgb_matrix::Color(255, 255, 0);
+      int c = continuum_ - 512;
+      g = 255 - c;
+      b = c;
     }
+
+    pcolor_->r = r;
+    pcolor_->g = g;
+    pcolor_->b = b;
 
     return true;
 }
 
 bool LedClock::DisplayTime()
 {
+    // get time and date now
+    time_t t = time(0);
+    timeinfo_ = localtime(&t);
+
     //format time string to HH:MM:AM/PM
     char buffer[8];
     strftime(buffer,8,"%H:%M",timeinfo_);
 
-    rgb_matrix::Color color(255, 255, 0);
+    int x = 1;
+    int y = -1;
 
-    int x(0), y(0);
-
-    rgb_matrix::DrawText(canvas_, font_, x, y + font_.baseline(),
-                         color, buffer);
+    canvas_->Clear();
+    rgb_matrix::DrawText(canvas_, font_, x, y + font_.baseline(), *pcolor_, buffer);
 
     return true;
 }
 
 bool LedClock::DisplayDate()
 {
+    // get time and date now
+    time_t t = time(0);
+    timeinfo_ = localtime(&t);
+
     //format day string (Mon/Tues/.../Fri)
     char buffer_day[4];
     strftime (buffer_day,4,"%a",timeinfo_);
 
-    //print day
-    //rgb_matrix::DrawText(canvas_, font_, x_, y_ + font_->baseline(), color_->Color, buffer_day);
+    int x_day = 7;
+    int y_day = -1;
 
-    //format date string ( MM/DD )
-    char buffer_date[5];
-    strftime (buffer_date,5,"%m/%d",timeinfo_);
+    //print day
+    canvas_->Clear();
+    rgb_matrix::DrawText(canvas_, font_, x_day, y_day + font_.baseline(), *pcolor_, buffer_day);
+
+    //format date string ( DDMMM )
+    char buffer_date[6];
+    strftime (buffer_date,6,"%d%h",timeinfo_);
+
+    int x_date = 1;
+    int y_date = font_.height() + font_.baseline() - 2;
 
     //print date
-    //rgb_matrix::DrawText(canvas_, font_, x_, y_ + font_->height(), color_->Color, buffer_date);
+    rgb_matrix::DrawText(canvas_, font_, x_date, y_date, *pcolor_, buffer_date);
 
     return true;
 }
 
 bool LedClock::CheckSunRise() {
+
+    return true;
     
 }
 
@@ -78,13 +100,26 @@ void LedClock::Run()
     while (running()) {
 
         //time
-        GetTimeAndDate();
-        DisplayTime();
+        for (int i=0; i<100; i++)
+        {
+            SetFontColor();
+            DisplayTime();
+            usleep(100 * 1000);
+        }
+
+        //date
+        for (int i=0; i<100; i++)
+        {
+            SetFontColor();
+            DisplayDate();
+            usleep(100 * 1000);
+        }
 
         //weather info
 
         //weather graphic
 
         sleep(1);
+        canvas_->Clear();
     }
 }
