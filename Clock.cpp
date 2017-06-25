@@ -47,14 +47,23 @@ bool LedClock::DisplayTime()
     timeinfo_ = localtime(&t);
 
     //format time string to HH:MM:AM/PM
-    char buffer[8];
-    strftime(buffer,8,"%H:%M",timeinfo_);
+    char buffer_time[8];
+    strftime(buffer_time,8,"%I:%M",timeinfo_);
 
-    int x = 1;
-    int y = -1;
+    int x_time = 1;
+    int y_time = font_.baseline()-1;
 
     canvas_->Clear();
-    rgb_matrix::DrawText(canvas_, font_, x, y + font_.baseline(), *pcolor_, buffer);
+    rgb_matrix::DrawText(canvas_, font_, x_time, y_time, *pcolor_, buffer_time);
+
+    //format time string to HH:MM:AM/PM
+    char buffer[3];
+    strftime(buffer,3,"%p",timeinfo_);
+
+    int x = 10;
+    int y = font_.height() + font_.baseline() - 2;
+
+    rgb_matrix::DrawText(canvas_, font_, x, y, *pcolor_, buffer);
 
     return true;
 }
@@ -70,11 +79,11 @@ bool LedClock::DisplayDate()
     strftime (buffer_day,4,"%a",timeinfo_);
 
     int x_day = 7;
-    int y_day = -1;
+    int y_day = font_.baseline()-1;
 
     //print day
     canvas_->Clear();
-    rgb_matrix::DrawText(canvas_, font_, x_day, y_day + font_.baseline(), *pcolor_, buffer_day);
+    rgb_matrix::DrawText(canvas_, font_, x_day, y_day, *pcolor_, buffer_day);
 
     //format date string ( DDMMM )
     char buffer_date[6];
