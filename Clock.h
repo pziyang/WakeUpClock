@@ -11,42 +11,44 @@
 class LedClock : public rgb_matrix::ThreadedCanvasManipulator
 {
 public:
-    LedClock(rgb_matrix::Canvas *canvas) :
-        rgb_matrix::ThreadedCanvasManipulator(canvas),
-        color_(0,0,0)
-    {
-       canvas_ = canvas;
-    }
+  LedClock(rgb_matrix::Canvas *c)
+    : ThreadedCanvasManipulator(c), canvas_(c)
+  {
+      //load font file
+      font_.LoadFont("../rgb_led_matrix/fonts/6x12.bdf");
 
-    //main thread
-    virtual void Run();
+      //set default font color
+      pcolor_ = new rgb_matrix::Color(255, 255, 0);
+  }
 
-    bool GetTimeAndDate();
-    bool DisplayTime();
-//    bool DisplayDate();
+  //main method
+  void Run();
 
-//    bool CheckSunRise();
-//    bool WakeLight();
+  //subroutines
+  bool GetTimeAndDate();
+  bool SetFontColor();
 
-//    bool GetWeather();
-//    bool DisplayWeather();
+  bool DisplayTime();
+  bool DisplayDate();
+
+  bool CheckSunRise();
 
 private:
-    struct tm *timeinfo_;
 
-    rgb_matrix::Canvas *canvas_;
+  rgb_matrix::Canvas* const canvas_;
 
-    rgb_matrix::Color color_;
-    const char *bdf_font_file_ = NULL;
-    int x_origin_ = 0;
-    int y_origin_ = 0;
-    int brightness_ = 100;
+  int x_origin_ = 0;
+  int y_origin_ = 0;
+  int brightness_ = 100;
 
-    int x_;
-    int y_;
+  int x_;
+  int y_;
 
-    rgb_matrix::Font font_;
+  rgb_matrix::Font font_;
+  rgb_matrix::Color* pcolor_;
 
-    std::mutex mlock_;
+  std::mutex mlock_;
+
+  struct tm *timeinfo_;
 
 };
